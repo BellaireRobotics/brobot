@@ -135,7 +135,7 @@ void forward(int n) {
 }
 
 void reverse(int n) {
-  Forward(-n);
+  forward(-n);
 }
 
 void right(int n) {
@@ -147,7 +147,7 @@ void right(int n) {
 }
 
 void left(int n) {
-   Right(-n);
+   right(-n);
 }
 
 void turn_right(int n) {
