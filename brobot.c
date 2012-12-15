@@ -26,24 +26,52 @@ void right(int n);
 void left(int n);
 void turn_right(int n);
 void turn_left(int n);
+void stop();
 void arm_up(int n);
 void arm_down(int n);
+void arm_stop();
 void flapper_in(int n);
 void flapper_out(int n);
+void flapper_stop();
 
 void pre_auton() {
   bStopTasksBetweenModes = true;
 }
 
 task autonomous() {
-  Forward(5);
+  reverse(10);
+  Sleep(200);
+  stop();
+
+  arm_up(10);
+  Sleep(500);
+  arm_stop();
+
+  flapper_in(10);
+
+  forward(3);
   Sleep(5000);
-  Back(5);
-  Sleep(5000);
-  Right(10);
+
+  arm_up(5);
+  Sleep(1500);
+  arm_stop();
+
+  forward(4);
   Sleep(2000);
-  Left(10);
-  Sleep(2000);
+  stop();
+
+  flapper_out(10);
+
+  reverse(4);
+  Sleep(500);
+
+  arm_down(5);
+  Sleep(3000);
+  arm_stop();
+
+  stop();
+  arm_stop();
+  flapper_stop();
 }
 
 task usercontrol() {
@@ -57,7 +85,7 @@ task usercontrol() {
     }
 
     if (abs(vexRT[Ch1]) > threshold || abs(vexRT[Ch1Xmtr2]) > threshold) {
-      X1 = -vexRT[Ch1] ? -vexRT[Ch1] : -vexRT[Ch1Xmtr2];
+      X1 = vexRT[Ch1] ? -vexRT[Ch1] : -vexRT[Ch1Xmtr2];
     } else {
       X1 = 0;
     }
@@ -158,8 +186,15 @@ void turn_right(int n) {
   motor[backLeft] =  n;
 }
 
-void turn_left(int) {
+void turn_left(int n) {
   turn_right(-n);
+}
+
+void stop() {
+  motor[frontRight] = 0;
+  motor[backRight] =  0;
+  motor[frontLeft] = 0;
+  motor[backLeft] =  0;
 }
 
 void arm_up(int n) {
@@ -172,6 +207,11 @@ void arm_down(int n) {
   arm_up(-n);
 }
 
+void arm_stop() {
+  motor[arm1] = 0;
+  motor[arm2] = 0;
+}
+
 void flapper_in(int n) {
   n = NORM(n);
   motor[flappers] = n;
@@ -179,4 +219,8 @@ void flapper_in(int n) {
 
 void flapper_out(int n) {
   flapper_in(-n);
+}
+
+void flapper_stop() {
+  motor[flappers] = 0;
 }
