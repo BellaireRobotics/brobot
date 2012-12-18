@@ -1,6 +1,49 @@
-#include "config.h"
-#include "actions.h"
+#pragma config(I2C_Usage, I2C1, i2cSensors)
+#pragma config(Sensor, dgtl3, side, sensorDigitalIn)
+#pragma config(Sensor, dgtl4, autonomous_alert_1, sensorLEDtoVCC)
+#pragma config(Sensor, dgtl5, autonomous_alert_2, sensorLEDtoVCC)
+#pragma config(Sensor, dgtl7, battery_alert_1, sensorLEDtoVCC)
+#pragma config(Sensor, dgtl8, battery_alert_2, sensorLEDtoVCC)
+#pragma config(Sensor, dgtl12, active_led, sensorLEDtoVCC)
+#pragma config(Sensor, I2C_1, armMotor, sensorQuadEncoderOnI2CPort, , AutoAssign)
+#pragma config(Motor,  port1, flappers, tmotorVex393, openLoop)
+#pragma config(Motor,  port2, frontRight, tmotorVex393, openLoop, reversed)
+#pragma config(Motor,  port3, backRight, tmotorVex393, openLoop, reversed)
+#pragma config(Motor,  port4, frontLeft, tmotorVex393, openLoop, reversed)
+#pragma config(Motor,  port5, backLeft, tmotorVex393, openLoop, reversed)
+#pragma config(Motor,  port7, arm1, tmotorVex393, openLoop)
+#pragma config(Motor,  port8, arm2, tmotorVex393, openLoop, reversed, encoder, encoderPort, I2C_1, 1000)
+#pragma config(Motor,  port10, stabilizer, tmotorVex393, openLoop)
+
+#pragma platform(VEX)
+
+#pragma competitionControl(Competition)
+#pragma autonomousDuration(15)
+#pragma userControlDuration(105)
+
 #include "Vex_Competition_Includes.c"
+
+#define NORM(n) (127 * n / 10)
+
+void forward(int n);
+void reverse(int n);
+void right(int n);
+void left(int n);
+void turn_right(int n);
+void turn_left(int n);
+void stop();
+void arm_up(int n);
+void arm_down(int n);
+void arm_stop();
+void flapper_in(int n);
+void flapper_out(int n);
+void flapper_stop();
+void stabilize();
+void check_battery();
+void check_avg_battery();
+void active_on(int mode);
+void battery_alert(int mode);
+void autonomous_alert(int mode);
 
 void pre_auton() {
   bStopTasksBetweenModes = true;
@@ -116,4 +159,123 @@ task usercontrol() {
       }
     }
   }
+}
+
+void forward(int n) {
+  //n = NORM(n);
+  motor[frontRight] = -n;
+  motor[backRight] = -n;
+  motor[frontLeft] = n;
+  motor[backLeft] =  n;
+}
+
+void reverse(int n) {
+  forward(-n);
+}
+
+void right(int n) {
+  //n = NORM(n);
+  motor[frontRight] = -n;
+  motor[backRight] = n;
+  motor[frontLeft] = n;
+  motor[backLeft] = -n;
+}
+
+void left(int n) {
+  right(-n);
+}
+
+void turn_right(int n) {
+  //n = NORM(n);
+  motor[frontRight] = n;
+  motor[backRight] =  n;
+  motor[frontLeft] = n;
+  motor[backLeft] =  n;
+}
+
+void turn_left(int n) {
+  turn_right(-n);
+}
+
+void stop() {
+  motor[frontRight] = 0;
+  motor[backRight] = 0;
+  motor[frontLeft] = 0;
+  motor[backLeft] =  0;
+}
+
+void arm_up(int n) {
+  //n = NORM(n);
+  motor[arm1] = n;
+  motor[arm2] = n;
+}
+
+void arm_down(int n) {
+  arm_up(-n);
+}
+
+void arm_stop() {
+  motor[arm1] = 0;
+  motor[arm2] = 0;
+}
+
+void flapper_in(int n) {
+  //n = NORM(n);
+  motor[flappers] = n;
+}
+
+void flapper_out(int n) {
+  flapper_in(-n);
+}
+
+void flapper_stop() {
+  motor[flappers] = 0;
+}
+
+void stabilize() {
+  motor[stabilizer] = 127;
+  Sleep(500);
+  motor[stabilizer] = 0;
+}
+
+void check_battery() {
+  if (nImmediateBatteryLevel <= 6) {
+    battery_alert(1);
+  } else {
+    battery_alert(0);
+  }
+}
+
+void check_avg_battery() {
+  if (nAvgBatteryLevel <= 5) {
+    battery_alert(1);
+  } else {
+    battery_alert(0);
+  }
+}
+
+void active_on(int mode) {
+  if (mode > 1 || mode < 0) {
+    mode = 0;
+  }
+
+  SensorValue[active_led] = mode;
+}
+
+void battery_alert(int mode) {
+  if (mode > 1 || mode < 0) {
+    mode = 0;
+  }
+
+  SensorValue[battery_alert_1] = mode;
+  SensorValue[battery_alert_2] = mode;
+}
+
+void autonomous_alert(int mode) {
+  if (mode > 1 || mode < 0) {
+    mode = 0;
+  }
+
+  SensorValue[autonomous_alert_1] = mode;
+  SensorValue[autonomous_alert_2] = mode;
 }
