@@ -101,6 +101,7 @@ task usercontrol() {
     motor[frontLeft] = Y1 + X2 + X1;
     motor[backLeft] =  Y1 + X2 - X1;
 
+    // Flappers
     if (vexRT[Btn6U] || vexRT[Btn6UXmtr2]) {
       motor[flappers] = 127;
     } else if (vexRT[Btn6D] || vexRT[Btn6DXmtr2]) {
@@ -109,6 +110,7 @@ task usercontrol() {
       motor[flappers] = 0;
     }
 
+    // Arms
     if (vexRT[Btn5U] || vexRT[Btn5UXmtr2]) {
       motor[arm1] = 127;
       motor[arm2] = 127;
@@ -126,6 +128,7 @@ task usercontrol() {
         arm_pos_set = 1;
       }
 
+      // Stabilize arm
       if (SensorValue[I2C_1] > arm_pos) {
         motor[arm1] = 15;
         motor[arm2] = 15;
