@@ -11,14 +11,14 @@
 #pragma config(Sensor, dgtl8, battery_alert_2, sensorLEDtoVCC)
 #pragma config(Sensor, dgtl12, active_led, sensorLEDtoVCC)
 #pragma config(Sensor, I2C_1, armMotor, sensorQuadEncoderOnI2CPort, , AutoAssign)
-#pragma config(Motor,  port1, flappers, tmotorVex393, openLoop)
-#pragma config(Motor,  port2, frontRight, tmotorVex393, openLoop, reversed)
-#pragma config(Motor,  port3, backRight, tmotorVex393, openLoop, reversed)
-#pragma config(Motor,  port4, frontLeft, tmotorVex393, openLoop, reversed)
-#pragma config(Motor,  port5, backLeft, tmotorVex393, openLoop, reversed)
-#pragma config(Motor,  port7, arm1, tmotorVex393, openLoop)
-#pragma config(Motor,  port8, arm2, tmotorVex393, openLoop, reversed, encoder, encoderPort, I2C_1, 1000)
-#pragma config(Motor,  port10, stabilizer, tmotorVex393, openLoop)
+#pragma config(Motor, port1, flappers, tmotorVex393, openLoop)
+#pragma config(Motor, port2, frontRight, tmotorVex393, openLoop, reversed)
+#pragma config(Motor, port3, backRight, tmotorVex393, openLoop, reversed)
+#pragma config(Motor, port4, frontLeft, tmotorVex393, openLoop, reversed)
+#pragma config(Motor, port5, backLeft, tmotorVex393, openLoop, reversed)
+#pragma config(Motor, port7, arm1, tmotorVex393, openLoop)
+#pragma config(Motor, port8, arm2, tmotorVex393, openLoop, reversed, encoder, encoderPort, I2C_1, 1000)
+#pragma config(Motor, port10, stabilizer, tmotorVex393, openLoop)
 
 #pragma platform(VEX)
 
@@ -43,7 +43,7 @@ void arm_stop();
 void flapper_in(int n);
 void flapper_out(int n);
 void flapper_stop();
-void stabilize();
+void stabilizer_open();
 void check_battery();
 void check_avg_battery();
 void active_on(int mode);
@@ -60,7 +60,7 @@ task autonomous() {
   autonomous_alert(1);
   check_avg_battery();
 
-  stabilize();
+  stabilizer_open();
 
   reverse(127);
   Sleep(200);
@@ -106,6 +106,7 @@ task usercontrol() {
     motor[frontLeft] = Y1 + X2 + X1;
     motor[backLeft] =  Y1 + X2 - X1;
 
+    // Flappers
     if (vexRT[Btn6U] || vexRT[Btn6UXmtr2]) {
       motor[flappers] = 127;
     } else if (vexRT[Btn6D] || vexRT[Btn6DXmtr2]) {
@@ -114,6 +115,7 @@ task usercontrol() {
       motor[flappers] = 0;
     }
 
+    // Arms
     if (vexRT[Btn5U] || vexRT[Btn5UXmtr2]) {
       motor[arm1] = 127;
       motor[arm2] = 127;
@@ -131,6 +133,7 @@ task usercontrol() {
         arm_pos_set = 1;
       }
 
+      // Stabilize arm
       if (SensorValue[I2C_1] > arm_pos) {
         motor[arm1] = 15;
         motor[arm2] = 15;
@@ -143,10 +146,11 @@ task usercontrol() {
       }
     }
 
+    // Stabilizer
     if (vexRT[Btn7U] || vexRT[Btn7UXmtr2]) {
-      motor[stabilizer] = 127;
+      motor[stabilizer] = 50;
     } else if (vexRT[Btn7D] || vexRT[Btn7DXmtr2]) {
-      motor[stabilizer] = -127;
+      motor[stabilizer] = -50;
     } else {
       motor[stabilizer] = 0;
     }
@@ -237,8 +241,8 @@ void flapper_stop() {
   motor[flappers] = 0;
 }
 
-void stabilize() {
-  motor[stabilizer] = 127;
+void stabilizer_open() {
+  motor[stabilizer] = 50;
   Sleep(500);
   motor[stabilizer] = 0;
 }
