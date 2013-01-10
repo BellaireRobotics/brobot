@@ -1,3 +1,8 @@
+/***
+ * Documentation on VEX Cortex Programming API can be found:
+ *  http://www.robotc.net/wiki/VEX2
+ */
+
 #pragma config(I2C_Usage, I2C1, i2cSensors)
 #pragma config(Sensor, dgtl3, side, sensorDigitalIn)
 #pragma config(Sensor, dgtl4, autonomous_alert_1, sensorLEDtoVCC)
